@@ -63,7 +63,7 @@ export FZF_ALT_C_OPTS="
 
 
 # Aliases
-alias sb="cd ~/second-brain"
+alias sb="sb ~/second-brain"
 alias dev="cd ~/dev"
 alias down="cd ~/Downloads"
 alias la="ls -lah"
