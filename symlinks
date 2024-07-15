@@ -1,0 +1,11 @@
+# Dotfiles Fedora symlinks
+
+ln -sf ~/dotfiles/.bashrc ~/.bashrc
+ln -sf ~/dotfiles/.bash_profile ~/.bash_profile
+ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
+ln -sf ~/dotfiles/.tmux ~/.tmux
+ln -sf ~/dotfiles/.config/starship.toml ~/.config/starship.toml
+ln -sf ~/dotfiles/.config/alacritty ~/.config/alacritty
+ln -sf ~/dotfiles/.config/nvim ~/.config/nvim
+
+
