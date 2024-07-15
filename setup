@@ -10,6 +10,8 @@ ln -sf "$PWD/.inputrc" "$HOME"/.inputrc
 ln -sf "$PWD/.tmux.conf" "$HOME"/.tmux.conf
 ln -sf "$PWD/.config/starship.toml" "$XDG_CONFIG_HOME"/starship.toml
 
+apt update && apt upgrade
+
 packages=(
 	fd
 	ripgrep
@@ -22,7 +24,7 @@ packages=(
 
 for package in "${packages[@]}"; do
 	echo "Installing $package..."
-	sudo apt install "$package"
+	sudo apt install -y "$package"
 done
 
 echo "All packages from the setup script have been installed."
