@@ -10,7 +10,7 @@ ln -sf "$PWD/.inputrc" "$HOME"/.inputrc
 ln -sf "$PWD/.tmux.conf" "$HOME"/.tmux.conf
 ln -sf "$PWD/.config/starship.toml" "$XDG_CONFIG_HOME"/starship.toml
 
-apt update && apt upgrade
+sudo apt update -y && apt upgrade -y
 
 packages=(
 	fd
