@@ -67,7 +67,7 @@ alias sb="cd ~/second-brain"
 alias dev="cd ~/dev"
 alias down="cd ~/Downloads"
 alias la="ls -lah"
-
+alias lg="lazygit"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
