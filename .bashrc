@@ -68,6 +68,7 @@ alias dev="cd ~/dev"
 alias down="cd ~/Downloads"
 alias la="ls -lah"
 alias lg="lazygit"
+alias sd="cd ~ && cd \$(find * -type d | fzf)"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -86,3 +87,5 @@ unset __conda_setup
 
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"

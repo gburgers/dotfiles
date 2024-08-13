@@ -6,3 +6,4 @@ if [ -f ~/.bashrc ]; then
 fi
 
 # User specific environment and startup programs
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
