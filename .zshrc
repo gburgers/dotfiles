@@ -1,7 +1,15 @@
-# Lines configured by zsh-newuser-installHISTFILE=~/.histfile
+# History setup
+HISTFILE=$HOME/.zhistory
 HISTSIZE=1000
-
 SAVEHIST=1000
+setopt share_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_verify
+
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
+
 unsetopt beep
 bindkey -v
 # End of lines configured by zsh-newuser-install
