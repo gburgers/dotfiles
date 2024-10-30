@@ -21,6 +21,9 @@ set $term alacritty
 set $rofi_cmd rofi 
 set $menu $rofi_cmd -show drun
 
+# Set gaps between windows
+gaps inner 8
+
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)

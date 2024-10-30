@@ -65,8 +65,8 @@ alias scripts='cd $SCRIPTS'
 alias c="clear"
 alias dot='cd $REPOS/dotfiles'
 alias rp='cd $REPOS'
-alias ghrepos='cd $GHREPOS'
-alias gr='ghrepos'
+alias grp='cd $GHREPOS'
+#alias gr='ghrepos'
 
 # ls
 alias ls='ls --color=auto'
@@ -78,6 +78,7 @@ alias ez="nano ~/.zshrc"
 alias sz="source .zshrc"
 alias down="cd ~/Downloads"
 alias ts="sudo -E timeshift-launcher"
+alias hl="cd ~/dev/homelab"
 
 # git
 alias lg='lazygit'
