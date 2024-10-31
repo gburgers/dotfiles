@@ -129,7 +129,7 @@ exec swayidle -w \
 #
    # Switch to workspace
     set $ws1 "1-Browser"
-    set $ws2 "2-Coding"
+    set $ws2 "2-Tmux"
     set $ws3 "3-Obsidian"
     set $ws4 "4-Proxmox"
     set $ws5 "5"

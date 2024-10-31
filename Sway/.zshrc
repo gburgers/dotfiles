@@ -79,6 +79,7 @@ alias sz="source .zshrc"
 alias down="cd ~/Downloads"
 alias ts="sudo -E timeshift-launcher"
 alias hl="cd ~/dev/homelab"
+alias dev="cd ~/dev"
 
 # git
 alias lg='lazygit'
