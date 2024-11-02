@@ -72,16 +72,22 @@ alias grp='cd $GHREPOS'
 alias ls='ls --color=auto'
 alias la='ls -lathr'
 
-alias sw="nano /home/gerben/.config/sway/config"
+alias sw="nvim /home/gerben/.config/sway/config"
 alias code="code --enable-features=UseOzonePlatform --enable-features=WaylandWindowDecorations --ozone-platform-hint=auto"
-alias ez="nano ~/.zshrc"
-alias sz="source .zshrc"
-alias down="cd ~/Downloads"
+alias ez="nvim /home/gerben/.zshrc"
+alias sz="source /home/gerben/.zshrc"
+alias down="cd /home/gerben/Downloads"
 alias ts="sudo -E timeshift-launcher"
-alias hl="cd ~/dev/homelab"
-alias dev="cd ~/dev"
+alias hl="cd /home/gerben/dev/homelab"
+alias dev="cd /home/gerben/dev"
 
 # git
 alias lg='lazygit'
+
+# lynx
+#alias lynx='/home/gerben/bin/lynx'
+alias '?'=duck
+alias '??'=google
+alias '???'=bing
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
