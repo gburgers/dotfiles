@@ -80,6 +80,7 @@ alias down="cd /home/gerben/Downloads"
 alias ts="sudo -E timeshift-launcher"
 alias hl="cd /home/gerben/dev/homelab"
 alias dev="cd /home/gerben/dev"
+alias ev='nvim /home/gerben/.config/nvim/init.lua'
 
 # git
 alias lg='lazygit'
@@ -87,7 +88,7 @@ alias lg='lazygit'
 # lynx
 #alias lynx='/home/gerben/bin/lynx'
 alias '?'=duck
-alias '??'=google
+alias '??'=duck
 alias '???'=bing
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
