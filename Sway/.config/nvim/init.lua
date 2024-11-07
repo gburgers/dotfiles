@@ -889,11 +889,16 @@ require('lazy').setup({
       statusline.section_location = function()
         return '%2l:%-2v'
       end
-
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
+
+  -- {
+  --     'nvim-lualine/lualine.nvim',
+  --     dependencies = { 'nvim-tree/nvim-web-devicons' }
+  -- },
+
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
