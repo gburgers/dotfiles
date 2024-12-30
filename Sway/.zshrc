@@ -3,7 +3,8 @@
 # Environment Variables
 
 set -o vi
-export TERM=xterm-256color
+# export TERM=xterm-256color
+export TERM=tmux-256color
 
 # Directories
 
@@ -90,5 +91,8 @@ alias lg='lazygit'
 alias '?'=duck
 alias '??'=duck
 alias '???'=bing
+
+# ssh
+alias godev="ssh godev"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
