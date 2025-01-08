@@ -14,7 +14,6 @@ export GHREPOS="$REPOS/github.com/$GITUSER"
 export DOTFILES="$GHREPOS/dotfiles"
 export SCRIPTS="$DOTFILES/scripts"
 
-
 # Key bindings
 
 bindkey "^[[3~" delete-char
@@ -63,7 +62,7 @@ prompt pure
 
 # repos
 alias scripts='cd $SCRIPTS'
-alias c="clear"
+alias c='clear'
 alias dot='cd $REPOS/dotfiles'
 alias rp='cd $REPOS'
 alias grp='cd $GHREPOS'
@@ -73,14 +72,14 @@ alias grp='cd $GHREPOS'
 alias ls='ls --color=auto'
 alias la='ls -lathr'
 
-alias sw="nvim /home/gerben/.config/sway/config"
-alias code="code --enable-features=UseOzonePlatform --enable-features=WaylandWindowDecorations --ozone-platform-hint=auto"
-alias ez="nvim /home/gerben/.zshrc"
-alias sz="source /home/gerben/.zshrc"
-alias down="cd /home/gerben/Downloads"
-alias ts="sudo -E timeshift-launcher"
-alias hl="cd /home/gerben/dev/homelab"
-alias dev="cd /home/gerben/dev"
+alias sw='nvim /home/gerben/.config/sway/config'
+alias code='code --enable-features=UseOzonePlatform --enable-features=WaylandWindowDecorations --ozone-platform-hint=auto'
+alias ez='nvim /home/gerben/.zshrc'
+alias sz='source /home/gerben/.zshrc'
+alias down='cd /home/gerben/Downloads'
+alias ts='sudo -E timeshift-launcher'
+alias hl='cd /home/gerben/dev/homelab'
+alias dev='cd /home/gerben/dev'
 alias ev='nvim /home/gerben/.config/nvim/init.lua'
 
 # git
