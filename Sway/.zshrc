@@ -8,10 +8,10 @@ export TERM=tmux-256color
 
 # Directories
 
-export REPOS="$HOME/Repos"
+export REPOS="$HOME/dev/Repos"
 export GITUSER="gburgers"
 export GHREPOS="$REPOS/github.com/$GITUSER"
-export DOTFILES="$GHREPOS/dotfiles"
+export DOTFILES="$REPOS/dotfiles"
 export SCRIPTS="$DOTFILES/scripts"
 
 # Key bindings

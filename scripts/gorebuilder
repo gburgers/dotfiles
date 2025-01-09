@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# Exit on error
+set -e
+
+# Store the process ID file location
+PID_FILE=".server.pid"
+
+# Function to stop the server
+stop_server() {
+    if [ -f "$PID_FILE" ]; then
+        local PID=$(cat "$PID_FILE")
+        if ps -p $PID >/dev/null 2>&1; then
+            echo "Stopping server process (PID: $PID)..."
+            kill -15 $PID
+            sleep 1 # Give the server time to shutdown gracefully
+            # Force kill if still running
+            if ps -p $PID >/dev/null 2>&1; then
+                kill -9 $PID
+            fi
+        fi
+        rm -f "$PID_FILE"
+    fi
+}
+
+# Function to build and run the server
+build_and_run() {
+    echo "Building Go application..."
+    # Creates an executable named 'server'
+    if ! go build -o server main.go; then
+        echo "Build failed!"
+        return 1
+    fi
+
+    # Stop existing server
+    stop_server
+
+    # Start the server and save its PID
+    echo "Starting server..."
+    ./server &
+    local PID=$!
+    echo $PID >"$PID_FILE"
+
+    # Verify server started successfully
+    sleep 1
+    if ! ps -p $PID >/dev/null; then
+        echo "Server failed to start!"
+        rm -f "$PID_FILE"
+        return 1
+    fi
+
+    echo "Server is running with PID $PID"
+}
+
+# Function to cleanup on script exit
+cleanup() {
+    stop_server
+}
+
+# Register the cleanup function to run on script exit
+trap cleanup EXIT INT TERM
+
+# Create a temporary script for entr to run
+cat >.rebuild.sh <<'EOF'
+#!/bin/bash
+
+stop_server() {
+    if [ -f ".server.pid" ]; then
+        local PID=$(cat ".server.pid")
+        if ps -p $PID > /dev/null 2>&1; then
+            echo "Stopping server process (PID: $PID)..."
+            kill -15 $PID
+            sleep 1
+            if ps -p $PID > /dev/null 2>&1; then
+                kill -9 $PID
+            fi
+        fi
+        rm -f ".server.pid"
+    fi
+}
+
+build_and_run() {
+    echo "Building Go application..."
+    if ! go build -o server main.go; then
+        echo "Build failed!"
+        return 1
+    fi
+
+    stop_server
+
+    echo "Starting server..."
+    ./server &
+    local PID=$!
+    echo $PID > ".server.pid"
+    
+    sleep 1
+    if ! ps -p $PID > /dev/null; then
+        echo "Server failed to start!"
+        rm -f ".server.pid"
+        return 1
+    fi
+    
+    echo "Server is running with PID $PID"
+}
+
+build_and_run
+EOF
+
+chmod +x .rebuild.sh
+
+# Initial build and run
+build_and_run
+
+# Watch for changes and rebuild/restart
+echo "Watching for changes in *.go files..."
+find . -name "*.go" | entr -r ./.rebuild.sh
