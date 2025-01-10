@@ -9,12 +9,12 @@ cleanup() {
     if pgrep -f "./server" >/dev/null; then
         kill $(pgrep -f ".server")
         echo "Server gracefully stopped!"
-        rm "$PID_FILE" 2>/dev/null
+        rm "${PID_FILE}" 2>/dev/null
         return 0
     elif [ -f .server.pid ] && ps -p "$(<".server.pid")" >/dev/null 2>&1; then
-        kill "$(<"$PID_FILE")"
+        kill "$(<"${PID_FILE}")"
         echo "Server gracefully killed!"
-        rm "$PID_FILE" 2>/dev/null
+        rm "${PID_FILE}" 2>/dev/null
         return 0
     else
         echo "No active server"
@@ -29,7 +29,7 @@ building() {
 
         # Check if the server was successfully started
         if [ $? -eq 0 ]; then
-            echo "$!" >"$PID_FILE" && echo "Server runs on PID: $(<"$PID_FILE")"
+            echo $! >"${PID_FILE}" && echo "Server runs on PID: $(<"${PID_FILE}")"
         else
             echo "Failed to start server."
             exit 1

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# test command is as [] condition
+[[ -z "${SCRIPTS}" ]] && echo "SCRIPTS not set" && exit 1
+[[ -z "$1" ]] && echo "usage: newscript <name>" && exit 1
+
+path="${SCRIPTS}/$1"
+
+if [[ -e "${path}" ]]; then
+    echo "Script name '$1' already exists, use another name!"
+    exit 0
+fi
+
+# Use printf for newlines \n
+printf "#/bin/bash\n\n" >"${path}"
+chmod +x "${path}"
+exec "$EDITOR" +2 "${path}"
