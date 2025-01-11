@@ -12,6 +12,6 @@ if [[ -e "${path}" ]]; then
 fi
 
 # Use printf for newlines \n
-printf "#/bin/bash\n\n" >"${path}"
+printf "#!/bin/bash\n\n" >"${path}"
 chmod +x "${path}"
 exec "$EDITOR" +2 "${path}"
