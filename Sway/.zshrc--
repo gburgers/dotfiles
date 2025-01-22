@@ -6,10 +6,6 @@ set -o vi
 # export TERM=xterm-256color
 export TERM=tmux-256color
 
-# for kubectl completion error
-autoload -Uz compinit
-compinit
-
 # Directories
 
 export REPOS="$HOME/dev/Repos"
@@ -17,7 +13,6 @@ export GITUSER="gburgers"
 export GHREPOS="$REPOS/github.com/$GITUSER"
 export DOTFILES="$REPOS/dotfiles"
 export SCRIPTS="$DOTFILES/scripts"
-export EDITOR="nvim"
 
 # Key bindings
 
@@ -72,20 +67,18 @@ alias dot='cd $REPOS/dotfiles'
 alias rp='cd $REPOS'
 alias grp='cd $GHREPOS'
 #alias gr='ghrepos'
-alias lab='cd $GHREPOS/lab/'
-alias hl='cd $GHREPOS/homelab'
 
 # ls
 alias ls='ls --color=auto'
 alias la='ls -lathr'
 
-alias v='nvim'
 alias sw='nvim /home/gerben/.config/sway/config'
 alias code='code --enable-features=UseOzonePlatform --enable-features=WaylandWindowDecorations --ozone-platform-hint=auto'
 alias ez='nvim /home/gerben/.zshrc'
 alias sz='source /home/gerben/.zshrc'
 alias down='cd /home/gerben/Downloads'
 alias ts='sudo -E timeshift-launcher'
+alias hl='cd /home/gerben/dev/homelab'
 alias dev='cd /home/gerben/dev'
 alias ev='nvim /home/gerben/.config/nvim/init.lua'
 
@@ -100,22 +93,5 @@ alias '???'=bing
 
 # ssh
 alias godev="ssh godev"
-
-# kubectl
-alias k='kubectl'
-alias kgp='kubectl get pod'
-alias kc='kubectx'
-alias kn='kubens'
-alias kcs='kubectl config use-contex xxx_staging'
-alias kcp='kubectl config use-contex xxx_production'
-
-# Current project home dir, working on 
-alias qq='cd $GHREPOS/gopherhacks/cmd/app/'
-
-# kubectl completion
-source <(kubectl completion zsh)
-
-# flux completion
-. <(flux completion zsh)
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
