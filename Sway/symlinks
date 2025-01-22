@@ -1,13 +1,13 @@
-ln -sf ~/Repos/dotfiles/Sway/.bashrc ~/.bashrc
-ln -sf ~/Repos/dotfiles/Sway/.zshrc ~/.zshrc
-ln -sf ~/Repos/dotfiles/Sway/.config/alacritty ~/.config/alacritty
-ln -sf ~/Repos/dotfiles/Sway/.config/nvim ~/.config/nvim
-ln -sf ~/Repos/dotfiles/Sway/.config/rofi ~/.config/rofi
-ln -sf ~/Repos/dotfiles/Sway/.config/sway ~/.config/sway
-ln -sf ~/Repos/dotfiles/Sway/.config/waybar ~/.config/waybar
-ln -sf ~/Repos/dotfiles/Sway/.config/nvim ~/.config/nvim
-ln -sf ~/Repos/dotfiles/Sway/.tmux.conf ~/.tmux.conf
-ln -sf ~/Repos/dotfiles/Sway/.tmux ~/.tmux
+ln -sf ~/dev/Repos/dotfiles/Sway/.bashrc ~/.bashrc
+ln -sf ~/dev/Repos/dotfiles/Sway/.zshrc ~/.zshrc
+ln -sf ~/dev/Repos/dotfiles/Sway/.config/alacritty ~/.config/alacritty
+ln -sf ~/dev/Repos/dotfiles/Sway/.config/nvim ~/.config/nvim
+ln -sf ~/dev/Repos/dotfiles/Sway/.config/rofi ~/.config/rofi
+ln -sf ~/dev/Repos/dotfiles/Sway/.config/sway ~/.config/sway
+ln -sf ~/dev/Repos/dotfiles/Sway/.config/waybar ~/.config/waybar
+ln -sf ~/dev/Repos/dotfiles/Sway/.config/nvim ~/.config/nvim
+ln -sf ~/dev/Repos/dotfiles/Sway/.tmux.conf ~/.tmux.conf
+ln -sf ~/dev/Repos/dotfiles/Sway/.tmux ~/.tmux
 
 
 
