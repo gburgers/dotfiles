@@ -33,6 +33,7 @@ path=(
     $HOME/bin
     $HOME/.local/bin
     $SCRIPTS
+    /usr/local/go/bin
 )
 
 # Remove duplicate entries and non-existent directories
@@ -88,6 +89,7 @@ alias down='cd /home/gerben/Downloads'
 alias ts='sudo -E timeshift-launcher'
 alias dev='cd /home/gerben/dev'
 alias ev='nvim /home/gerben/.config/nvim/init.lua'
+alias sb='cd /home/gerben/dev/Repos/second-brain/3_Resources/Development/'
 
 # git
 alias lg='lazygit'
@@ -108,6 +110,8 @@ alias kc='kubectx'
 alias kn='kubens'
 alias kcs='kubectl config use-contex xxx_staging'
 alias kcp='kubectl config use-contex xxx_production'
+alias kv='k get persistentvolume'
+alias kvc='k get persistentvolumeclaims'
 
 # Current project home dir, working on 
 alias qq='cd $GHREPOS/gopherhacks/cmd/app/'
