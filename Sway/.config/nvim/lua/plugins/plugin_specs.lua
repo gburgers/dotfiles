@@ -32,6 +32,7 @@ return {
         "python",
         "query",
         "sql",
+        "templ",
         "toml",
         "vim",
         "vimdoc",
@@ -51,6 +52,8 @@ return {
     opts = {
       formatters_by_ft = {
         lua = { "stylua" },
+        templ = { "templ" }, -- use Templ's own formatter
+
         -- Conform can also run multiple formatters sequentially
         python = { "isort", "black" },
         javascript = { "prettierd", "prettier", stop_after_first = true },
@@ -66,6 +69,13 @@ return {
           -- These options will be passed to conform.format()
           timeout_ms = 500,
           lsp_fallback = true,
+        },
+      },
+      formatters = {
+        templ = {
+          command = "templ",
+          args = { "fmt", "-" },
+          stdin = true,
         },
       },
     },
@@ -91,7 +101,14 @@ return {
         jsonls = {},
         marksman = {},
         sqlls = {},
-        tailwindcss = {},
+        tailwindcss = {
+          filetypes = { "templ", "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+          init_options = {
+            userLanguages = {
+              templ = "html", -- treat .templ files like HTML
+            },
+          },
+        },
         zls = {},
         yamlls = {},
       },

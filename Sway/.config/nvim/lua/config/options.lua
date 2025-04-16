@@ -9,3 +9,9 @@ opt.shiftwidth = 4
 opt.softtabstop = 4
 opt.clipboard = "unnamedplus"
 vim.g.snacks_animate = false
+opt.list = false
+vim.filetype.add({
+  extension = {
+    templ = "templ",
+  },
+})

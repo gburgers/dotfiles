@@ -31,6 +31,7 @@ setopt extended_glob null_glob
 path=(
     $path                           # Keep existing PATH entries
     $HOME/bin
+    $HOME/go/bin/
     $HOME/.local/bin
     $SCRIPTS
     /usr/local/go/bin
@@ -110,8 +111,17 @@ alias kc='kubectx'
 alias kn='kubens'
 alias kcs='kubectl config use-contex xxx_staging'
 alias kcp='kubectl config use-contex xxx_production'
-alias kv='k get persistentvolume'
-alias kvc='k get persistentvolumeclaims'
+
+# namespaces
+#
+# Current namespace
+alias kns='kubectl config view --minify -o jsonpath="{..namespace}"'
+# Switch namespace
+alias ksn='kubectl config set-context --current --namespace'
+# List all namespaces
+alias kgns='kubectl get namespaces'
+# Get pods in all namespaces
+alias kgpa='kubectl get pods --all-namespaces'
 
 # Current project home dir, working on 
 alias qq='cd $GHREPOS/gopherhacks/cmd/app/'
