@@ -72,10 +72,12 @@ return {
         },
       },
       formatters = {
-        templ = {
+        templ_fmt = {
           command = "templ",
-          args = { "fmt", "-" },
-          stdin = true,
+          args = function(ctx)
+            return { "fmt", ctx.filename }
+          end,
+          stdin = false,
         },
       },
     },
