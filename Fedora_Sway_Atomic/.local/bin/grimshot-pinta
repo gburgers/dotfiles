@@ -1,0 +1,19 @@
+#!/bin/bash
+filename="$HOME/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png"
+
+# Take screenshot
+grimshot save area "$filename"
+
+# Check if screenshot was taken
+if [ $? -eq 0 ] && [ -f "$filename" ]; then
+    echo "Screenshot saved to: $filename"
+    
+    # Open in Pinta Flatpak (suppress output and detach from terminal)
+    flatpak run com.github.PintaProject.Pinta "$filename" >/dev/null 2>&1 &
+    
+    # Detach from script so terminal can be used
+    disown
+    
+else
+    echo "Screenshot cancelled or failed"
+fi

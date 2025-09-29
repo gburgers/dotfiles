@@ -1,0 +1,6 @@
+[Unit]
+Description=Run daily Dev folder backup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rsync -av --delete --no-perms --no-owner --no-group --exclude .Trash-1000 --exclude */mysql/* /home/gerben/dev/ /run/media/gerben/Backup/_BACKUPS/dev

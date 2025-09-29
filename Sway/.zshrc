@@ -35,6 +35,7 @@ path=(
     $HOME/.local/bin
     $SCRIPTS
     /usr/local/go/bin
+    $HOME/.npm-global/bin
 )
 
 # Remove duplicate entries and non-existent directories

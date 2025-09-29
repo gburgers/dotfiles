@@ -94,20 +94,33 @@ return {
         clangd = {},
         bashls = {},
         gopls = {},
+        templ = {},
         pyright = {},
         rust_analyzer = {},
         cssls = {},
-        html = {},
+        html = {
+          filetypes = { "html", "templ" },
+        },
         dockerls = {},
         docker_compose_language_service = {},
         jsonls = {},
         marksman = {},
         sqlls = {},
+        -- tailwindcss = {
+        --   filetypes = { "templ", "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+        --   init_options = {
+        --     userLanguages = {
+        --       templ = "html", -- treat .templ files like HTML
+        --     },
+        --   },
+        -- },
         tailwindcss = {
-          filetypes = { "templ", "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
-          init_options = {
-            userLanguages = {
-              templ = "html", -- treat .templ files like HTML
+          filetypes = { "templ", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+          settings = {
+            tailwindCSS = {
+              includeLanguages = {
+                templ = "html",
+              },
             },
           },
         },

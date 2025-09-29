@@ -10,8 +10,9 @@ opt.softtabstop = 4
 opt.clipboard = "unnamedplus"
 vim.g.snacks_animate = false
 opt.list = false
-vim.filetype.add({
-  extension = {
-    templ = "templ",
-  },
-})
+-- vim.filetype.add({
+--   extension = {
+--     templ = "templ",
+--   },
+-- })
+vim.api.nvim_create_autocmd({ "BufWritePre" }, { pattern = { "*.templ" }, callback = vim.lsp.buf.format })
