@@ -1,8 +1,6 @@
 #!/bin/bash
-
 set -e
-
-PID_FILE=".goliveserver.pid"
+PID_FILE=".go-server.pid"
 export PID_FILE
 
 log() {
@@ -10,45 +8,16 @@ log() {
 }
 
 cleanup() {
-
-    if [ -f "$PID_FILE" ]; then
-        pid=$(<"$PID_FILE")
-
-        if ps -p "$pid" >/dev/null 2>&1; then
-            if kill "$pid" 2>/dev/null; then
-                log ">>> GoLive server gracefully stopped!"
-                echo
-            elif kill -9 "$pid" 2>/dev/null; then
-                log ">>> GoLive server killed!"
-            else
-                log ">>> Failed to kill process $pid"
-            fi
-
-        else
-            log ">>> PID exists but no matching GoLive server"
-        fi
-
-        rm -f "$PID_FILE"
-        # log ">>> PID file removed"
-
-    else
-        log ">>> No PID file found"
-    fi
-
-    if pid_fallback=$(pgrep -f '^./goliveserver$'); then
-
-        if [ -n "$pid_fallback" ]; then
-            if kill "$pid_fallback" 2>/dev/null; then
-                log ">>> GoLive server gracefully stopped!"
-            elif kill -9 "$pid_fallback" 2>/dev/null; then
-                log ">>> GoLive server killed!"
-            else
-                log ">>> Failed to kill GoLive server"
-            fi
-        else
-            log ">>> No active GoLive server"
-        fi
-    fi
+   if [ -f "$PID_FILE" ]; then
+       pid=$(<"$PID_FILE")
+       log ">>> Available go-server.pid=$pid"
+       kill -9 "$pid" 2>/dev/null || true
+       rm -f "$PID_FILE"
+       log ">>> go-server $pid stopped"  
+   fi
+   
+   pkill -9 go-server 2>/dev/null || true   
+    
 }
 
 build_templ() {
@@ -59,62 +28,42 @@ build_templ() {
         log ">>> Templ build failed!"
         return 1
     fi
-
 }
 
 build_app() {
-
     main_path=$(fd main.go --type f --exclude vendor --exclude .git | head -n1)
-
     if [ -z "$main_path" ]; then
         log ">>> Could not find main.go"
-        log ">>> There is no main.go! Waiting for changes..."
         return 1
     fi
-
+    
     main_dir=$(dirname "$main_path")
     log ">>> Found main.go in $main_dir"
     log "*** Building Go app ***"
-
-    # Build all .go files in that folder
-    if go build -o ./goliveserver "$main_dir"/*.go; then
+    
+    if go build -o ./go-server  "$main_dir"/*.go; then
         log ">>> Build App successfully"
     else
         log ">>> Building App Failed.., please fix!"
-        log "*** Waiting for changes... ***"
         return 1
     fi
-
-    if [ -f goliveserver ]; then
-        log "*** Starting GoLive server ***"
-        ./goliveserver &
-        server_pid=$!
-    else
-        log ">>> Cannot find Go build file"
-        return 1
-    fi
-
-    if ps -p "$server_pid" >/dev/null 2>&1; then
-        echo "$server_pid" >"$PID_FILE"
-        # log ">>> Server runs on PID: $server_pid"
-        log "*** Waiting for changes... ***"
-    else
-        log ">>> Failed to start GoLive server."
-        exit 1
-    fi
-
+    
+    log "*** Starting new go-server ***"
+    ./go-server  &
+    echo $! >"$PID_FILE"  
+    pid=$(<"$PID_FILE")
+    log "*** go-server $pid live ***"
+    log "*** Waiting for changes... ***"
 }
 
-# Export functions to be available for 'entr'
-export -f cleanup
-export -f build_app
-export -f build_templ
-export -f log
-
-# Trap Ctrl+C (SIGINT) and terminal close (SIGHUP) signals
+export -f cleanup build_app build_templ log
 trap cleanup INT TERM HUP
 
-# Watch *.go and *.templ for changes and execute functions
-entr -d bash -c 'cleanup && build_templ && build_app' <<<"$(fd -e go -e templ)"
+# Initial build
+cleanup
+build_templ && build_app
 
-wait
+# Watch for changes, excluding generated files and binary
+fd -e go -e templ --exclude '*_templ.go' --exclude 'go-server' | \
+  entr -rp bash -c 'cleanup && build_templ && build_app'  
+  #entr -rp bash -c 'cleanup && build_templ && build_app' <<<"$(fd -e go -e templ --exclude '*_templ.go' --exclude 'goliveserver')"

@@ -1,11 +1,11 @@
 * {
-    font-family: 'Noto Sans Mono', 'Font Awesome 6 Free', 'Font Awesome 6 Brands', monospace;
+    font-family: 'Inter', 'Noto Sans Mono', 'Font Awesome 6 Free', 'Font Awesome 6 Brands', monospace;
     font-size: 13px;
 }
 
 window#waybar {
     background-color: rgba(43, 48, 59, 0.8);
-    border-bottom: 0px solid rgba(100, 114, 125, 0.5);
+    border-bottom: 1px solid rgba(100, 114, 125, 0.5);
     color: #ffffff;
     transition-property: background-color;
     transition-duration: .5s;
@@ -113,7 +113,7 @@ button:hover {
 }
 
 #clock {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
 }
 
 #battery {
@@ -154,7 +154,7 @@ button:hover {
 }
 
 #power-profiles-daemon.balanced {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
     color: #ffffff;
 }
 
@@ -168,16 +168,16 @@ label:focus {
 }
 
 #cpu {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
     color: #ffffff;
 }
 
 #memory {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
 }
 
 #disk {
-    background-color: #964B00;
+    background-color: #000000;
 }
 
 #backlight {
@@ -193,7 +193,7 @@ label:focus {
 }
 
 #pulseaudio {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
     color: #fff;
 }
 
@@ -226,7 +226,7 @@ label:focus {
 }
 
 #temperature {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
 }
 
 #temperature.critical {
@@ -234,7 +234,7 @@ label:focus {
 }
 
 #tray {
-    background-color: #64727D;
+    background-color: rgba(43, 48, 59, 0.8);
 }
 
 #tray > .passive {

@@ -67,7 +67,7 @@ alias grp='cd $GHREPOS'
 
 alias godev='toolbox enter go-dev'
 alias cli='toolbox enter cli-tools'
-alias lazygit='toolbox run -c cli-tools lazygit'
+alias lg='toolbox run -c cli-tools lazygit'
 
 # Neovim from toolbox
 # agrplias nvim='toolbox run -c cli-tools nvim'
