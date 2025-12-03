@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -e
+
+# 1. Ensure we are on main
+git checkout main
+
+# 2. Sync with remote main safely
+git fetch origin
+git pull --ff-only origin main
+
+# 3. Ask for version number
+echo "Enter release version (e.g. v0.0.2):"
+read VERSION
+
+# 4. Create annotated tag
+git tag -a "$VERSION" -m "Release $VERSION"
+
+# 5. Push tag
+git push origin "$VERSION"
+
+echo "✔ Release $VERSION pushed!"
+echo "GitHub Actions will now build the production image."
+

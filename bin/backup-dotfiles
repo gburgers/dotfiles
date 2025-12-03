@@ -1,0 +1,111 @@
+#!/bin/bash
+# ~/.local/bin/backup-dotfiles.sh
+# Backup dotfiles to local, repos, and USB drive
+
+DATE=$(date +%Y%m%d)
+LOCAL_BACKUP_DIR="$HOME/data/_BACKUPS/dotfiles"
+LOCAL_Repos_DIR="$HOME/dev/Repos/dotfiles/Fedora_Sway_Atomic"
+USB_MOUNT="/run/media/gerben/Backup"
+USB_BACKUP_DIR="$USB_MOUNT/_BACKUPS/dotfiles"
+
+# List of dotfiles and directories to backup
+DOTFILES=(
+    ".bashrc"
+    ".wezterm.lua"
+    ".gitconfig"
+    ".config/sway/config"
+    ".config/waybar/"
+    ".config/nvim/"
+    ".local/bin/"
+    ".ssh/"
+    ".config/systemd/user/"
+)
+
+echo "Starting dotfiles backup for $(date)..."
+echo ""
+
+# Create local backup directory
+mkdir -p "$LOCAL_BACKUP_DIR"
+
+# Backup each dotfile/directory
+for item in "${DOTFILES[@]}"; do
+    SOURCE="$HOME/$item"
+    
+    # Check if source exists
+    if [ ! -e "$SOURCE" ]; then
+        echo "⚠️  Skipping $item (not found)"
+        continue
+    fi
+    
+    
+    
+    # Determine if it's a file or directory
+if [ -d "$SOURCE" ]; then
+    echo "📁 Backing up directory: $item"
+    
+    # Create parent directories first for local backup
+    mkdir -p "$LOCAL_BACKUP_DIR/$item"
+    rsync -av --delete "$SOURCE/" "$LOCAL_BACKUP_DIR/$item/"
+    
+    # Sync to Repos (skip .ssh directory entirely)
+    if [ "$item" = ".ssh/" ]; then
+        echo "  ⏭️  Skipping .ssh/ for git repo (sensitive data)"
+    else
+        mkdir -p "$LOCAL_Repos_DIR/$item"
+        rsync -av --delete "$SOURCE/" "$LOCAL_Repos_DIR/$item/"
+    fi
+else
+echo "📄 Backing up file: $item"
+
+# Create parent directory structure if needed
+mkdir -p "$LOCAL_BACKUP_DIR/$(dirname "$item")"
+rsync -av "$SOURCE" "$LOCAL_BACKUP_DIR/$item"
+
+# Also sync to Repos
+mkdir -p "$LOCAL_Repos_DIR/$(dirname "$item")"
+rsync -av "$SOURCE" "$LOCAL_Repos_DIR/$item"
+fi
+done
+
+echo ""
+echo "✅ Local backup completed"
+
+# Show total size
+LOCAL_SIZE=$(du -sh "$LOCAL_BACKUP_DIR" 2>/dev/null | cut -f1)
+echo "📊 Local backup size: $LOCAL_SIZE"
+
+# Show repos size
+REPOS_SIZE=$(du -sh "$LOCAL_Repos_DIR" 2>/dev/null | cut -f1)
+echo "📊 Repos size: $REPOS_SIZE"
+
+# Sync to USB drive if available
+if [ -d "$USB_MOUNT" ] && [ -w "$USB_MOUNT" ]; then
+    echo ""
+    echo "📡 Syncing dotfiles to USB drive..."
+    mkdir -p "$USB_BACKUP_DIR"
+    
+    if rsync -av --delete "$LOCAL_BACKUP_DIR/" "$USB_BACKUP_DIR/"; then
+        echo "✅ Successfully synced to USB backup drive"
+        
+        USB_SIZE=$(du -sh "$USB_BACKUP_DIR" 2>/dev/null | cut -f1)
+        echo "📊 USB backup size: $USB_SIZE"
+    else
+        echo "❌ Failed to sync to USB backup drive"
+    fi
+else
+    echo ""
+    echo "⚠️  USB backup drive not available at $USB_MOUNT"
+    echo "   Local backups saved to: $LOCAL_BACKUP_DIR"
+fi
+
+echo ""
+echo "Dotfiles backed up to:"
+echo "  Local: $LOCAL_BACKUP_DIR"
+echo "  Repos: $LOCAL_Repos_DIR"
+if [ -d "$USB_MOUNT" ]; then
+    echo "  USB: $USB_BACKUP_DIR"
+fi
+echo ""
+echo "To restore a dotfile:"
+echo "  cp $LOCAL_BACKUP_DIR/.bashrc ~/"
+echo "  rsync -av $LOCAL_BACKUP_DIR/.config/sway/ ~/.config/sway/"
