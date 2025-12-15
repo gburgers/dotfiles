@@ -67,6 +67,7 @@ alias grp='cd $GHREPOS'
 
 alias godev='toolbox enter go-dev'
 alias cli='toolbox enter cli-tools'
+alias ai='toolbox enter ai-tools'
 alias lg='toolbox run -c cli-tools lazygit'
 
 # Neovim from toolbox
@@ -86,10 +87,80 @@ alias v='toolbox run -c cli-tools nvim'
 alias rg='toolbox run -c cli-tools rg'
 alias fzf='toolbox run -c cli-tools fzf'
 alias bat='toolbox run -c cli-tools bat'
-alias tmux='toolbox run -c cli-tools tmux'
 alias htop='toolbox run -c cli-tools htop'
+
+# Go-dev tools
+alias code='toolbox run -c go-dev code'
 
 # Quick screenshots
 alias ss='grimshot save area'
 # Screenshot + edit
 alias sse='~/.local/bin/grimshot-pinta'
+
+# Kubernetes
+alias k='kubectl'
+alias ka='kubectl apply -f'
+alias kd='kubectl describe'
+alias kg='kubectl get'
+alias kgp='kubectl get pod'
+alias kgs='kubectl get svc'
+alias kgi='kubectl get ingress'
+alias kgn='kubectl get nodes'
+alias kl='kubectl logs -f'
+alias ke='kubectl exec -it'
+
+# Context & namespace (short & sweet)
+alias kc='kubectx'
+alias kn='kubens'
+alias kwhere='kubectx -c && kubens -c' # "where the hell am I?"
+
+# One-letter cluster switches (when you have k3s-vm and k3s-prod)
+alias kdev='kubectx k3s-vm'
+alias kprod='kubectx k3s-prod'
+
+# Quick namespace switches
+alias kpr='kubens liteshop-web-prod'
+alias kst='kubens liteshop-web-staging'
+
+# k9s (because you’ll live in it)
+alias k9='k9s'
+
+# Update all k8s tools in toolbox
+alias k3s-update='toolbox enter kubernetes && sudo dnf update -y kubectl k9s && exit && echo "kubectl $(kubectl version --client --short) | k9s $(k9s version --short)"'
+
+# Bonus: restart your app instantly (replace ls-app with your deployment name)
+alias krestart='kubectl rollout restart deployment ls-app'
+
+# Current project home dir, working on
+alias qq='cd ~/dev/Repos/github.com/gburgers/liteshop-web'
+
+# Kubernetes completion – works with toolbox-installed kubectl
+if command -v kubectl >/dev/null 2>&1; then
+  source <(kubectl completion bash)
+fi
+
+# Bonus: also complete the k alias
+complete -F __start_kubectl k
+
+. "$HOME/.atuin/bin/env"
+
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+eval "$(atuin init bash)"
+
+#echo "Reminder! Are you on development? If not: git checkout development"
+
+# opencode
+export PATH=/home/gerben/.opencode/bin:$PATH
+
+# fzf keybindings (Ctrl-T, Ctrl-R, Alt-C) – from cli-tools toolbox
+[[ -f ~/.fzf.bash ]] && source ~/.fzf.bash
+
+eval "$(zoxide init bash)"
+
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd <"$tmp"
+  [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}

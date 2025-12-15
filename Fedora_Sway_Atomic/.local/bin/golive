@@ -4,56 +4,56 @@ PID_FILE=".go-server.pid"
 export PID_FILE
 
 log() {
-    echo "[$(date '+%H:%M:%S')] $*"
+  echo "[$(date '+%H:%M:%S')] $*"
 }
 
 cleanup() {
-   if [ -f "$PID_FILE" ]; then
-       pid=$(<"$PID_FILE")
-       log ">>> Available go-server.pid=$pid"
-       kill -9 "$pid" 2>/dev/null || true
-       rm -f "$PID_FILE"
-       log ">>> go-server $pid stopped"  
-   fi
-   
-   pkill -9 go-server 2>/dev/null || true   
-    
+  if [ -f "$PID_FILE" ]; then
+    pid=$(<"$PID_FILE")
+    log ">>> Available go-server.pid=$pid"
+    kill -9 "$pid" 2>/dev/null || true
+    rm -f "$PID_FILE"
+    log ">>> go-server $pid stopped"
+  fi
+
+  pkill -9 go-server 2>/dev/null || true
+
 }
 
 build_templ() {
-    log "*** Building Temple files ***"
-    if go tool templ generate -path .; then
-        log ">>> Build Templ successfully"
-    else
-        log ">>> Templ build failed!"
-        return 1
-    fi
+  log "*** Building Temple files ***"
+  if go tool templ generate -path .; then
+    log ">>> Build Templ successfully"
+  else
+    log ">>> Templ build failed!"
+    return 1
+  fi
 }
 
 build_app() {
-    main_path=$(fd main.go --type f --exclude vendor --exclude .git | head -n1)
-    if [ -z "$main_path" ]; then
-        log ">>> Could not find main.go"
-        return 1
-    fi
-    
-    main_dir=$(dirname "$main_path")
-    log ">>> Found main.go in $main_dir"
-    log "*** Building Go app ***"
-    
-    if go build -o ./go-server  "$main_dir"/*.go; then
-        log ">>> Build App successfully"
-    else
-        log ">>> Building App Failed.., please fix!"
-        return 1
-    fi
-    
-    log "*** Starting new go-server ***"
-    ./go-server  &
-    echo $! >"$PID_FILE"  
-    pid=$(<"$PID_FILE")
-    log "*** go-server $pid live ***"
-    log "*** Waiting for changes... ***"
+  main_path=$(fd main.go --type f --exclude vendor --exclude .git | head -n1)
+  if [ -z "$main_path" ]; then
+    log ">>> Could not find main.go"
+    return 1
+  fi
+
+  main_dir=$(dirname "$main_path")
+  log ">>> Found main.go in $main_dir"
+  log "*** Building Go app ***"
+
+  if go build -o ./go-server "$main_dir"/*.go; then
+    log ">>> Build App successfully"
+  else
+    log ">>> Building App Failed.., please fix!"
+    return 1
+  fi
+
+  log "*** Starting new go-server ***"
+  ./go-server &
+  echo $! >"$PID_FILE"
+  pid=$(<"$PID_FILE")
+  log "*** go-server $pid live ***"
+  log "*** Waiting for changes... ***"
 }
 
 export -f cleanup build_app build_templ log
@@ -64,6 +64,6 @@ cleanup
 build_templ && build_app
 
 # Watch for changes, excluding generated files and binary
-fd -e go -e templ --exclude '*_templ.go' --exclude 'go-server' | \
-  entr -rp bash -c 'cleanup && build_templ && build_app'  
-  #entr -rp bash -c 'cleanup && build_templ && build_app' <<<"$(fd -e go -e templ --exclude '*_templ.go' --exclude 'goliveserver')"
+fd -e go -e templ --exclude '*_templ.go' --exclude 'go-server' |
+  entr -rp bash -c 'cleanup && build_templ && build_app'
+#entr -rp bash -c 'cleanup && build_templ && build_app' <<<"$(fd -e go -e templ --exclude '*_templ.go' --exclude 'goliveserver')"

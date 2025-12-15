@@ -26,7 +26,9 @@
 //      "sway/language",
 //      "battery",
         "clock",
-        "tray"
+        "custom/media",
+        "tray",
+        "custom/power"
     ],
     // Modules configuration
     // "sway/workspaces": {
@@ -108,8 +110,10 @@
     "clock": {
         // "timezone": "America/New_York",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%Y-%m-%d}"
+//        "format-alt": "{:%Y-%m-%d}"         
+        "format": "{:%d-%m-%Y %H:%M}"
     },
+    
     "cpu": {
         "format": "{usage}% ",
         "tooltip": false
