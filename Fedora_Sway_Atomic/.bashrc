@@ -9,6 +9,12 @@ fi
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
   PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
+
+# Go (manual installation)
+if ! [[ "$PATH" =~ "/usr/local/go/bin:" ]]; then
+  PATH="/usr/local/go/bin:$PATH"
+fi
+
 export PATH
 
 # Increase history size
@@ -43,6 +49,7 @@ unset rc
 if [ -f /run/.containerenv ]; then
   export STARSHIP_CONFIG=~/.config/starship_container.toml
   eval "$(starship init bash)"
+  eval "$(zoxide init bash)"
 else
   # Use default starship config for host
   eval "$(starship init bash)"
@@ -155,7 +162,6 @@ export PATH=/home/gerben/.opencode/bin:$PATH
 # fzf keybindings (Ctrl-T, Ctrl-R, Alt-C) – from cli-tools toolbox
 [[ -f ~/.fzf.bash ]] && source ~/.fzf.bash
 
-eval "$(zoxide init bash)"
 
 function y() {
   local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
