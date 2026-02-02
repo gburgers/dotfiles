@@ -90,7 +90,6 @@ alias sb='source /home/gerben/.bashrc'
 
 # Other CLI tools if needed
 
-alias v='toolbox run -c cli-tools nvim'
 alias rg='toolbox run -c cli-tools rg'
 alias fzf='toolbox run -c cli-tools fzf'
 alias bat='toolbox run -c cli-tools bat'
@@ -140,6 +139,17 @@ alias krestart='kubectl rollout restart deployment ls-app'
 
 # Current project home dir, working on
 alias qq='cd ~/dev/Repos/github.com/gburgers/liteshop-web'
+
+v() {
+  # If we're already inside toolbox, just run nvim directly
+  if [ -n "${TOOLBOX_PATH:-}" ] || [ -f /run/.toolboxenv ]; then
+    command nvim "$@"
+  else
+    toolbox run -c cli-tools nvim "$@"
+  fi
+}
+
+
 
 # Kubernetes completion – works with toolbox-installed kubectl
 if command -v kubectl >/dev/null 2>&1; then
