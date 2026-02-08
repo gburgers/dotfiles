@@ -1,3 +1,5 @@
 /Fedora_Sway_Atomic/.ssh/
 /FedoraWS/.ssh/
 /Sway/.ssh/
+/Fedora_Sway_Atomic/.local/bin/k9s
+/Fedora_Sway_Atomic/.local/bin/kubectl

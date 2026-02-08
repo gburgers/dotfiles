@@ -7,6 +7,10 @@ local config = wezterm.config_builder()
 -- This is where you actually apply your config choices.
 
 -- For example, changing the initial geometry for new windows:
+config.enable_wayland = true  -- Force Wayland
+-- OR
+-- config.enable_wayland = false  -- Force X11 if crashes persist
+
 config.initial_cols = 120
 config.initial_rows = 28
 

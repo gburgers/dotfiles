@@ -66,6 +66,9 @@ export DOTFILES="$REPOS/dotfiles"
 export SCRIPTS="$DOTFILES/scripts"
 export EDITOR="nvim"
 
+# Env variable for Go development Slog LOG_LEVEL: INFO / DEBUG
+export LOG_LEVEL=DEBUG
+
 # Key bindings
 
 #bindkey "^[[3~" delete-char
