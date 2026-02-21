@@ -563,6 +563,7 @@ require('lazy').setup({
         virtual_text = false, -- turn off the non-wrapping inline text
         virtual_lines = {
           current_line = false, -- only show for the line under cursor
+          severity = { min = vim.diagnostic.severity.ERROR },
         },
         signs = vim.g.have_nerd_font and {
           text = {
@@ -982,10 +983,10 @@ require('lazy').setup({
 
   {
     'chentoast/marks.nvim',
-    event = 'VeryLazy',
+    event = 'BufReadPre', -- load before reading a buffer
     opts = {
-      default_mappings = true, -- keeps the standard m{a-z} etc.
-      signs = true, -- shows marks in the gutter
+      default_mappings = true,
+      signs = true,
       refresh_interval = 150,
       sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
     },
