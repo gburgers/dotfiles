@@ -6,7 +6,7 @@ vim.g.maplocalleader = ' '
 vim.opt.number = true
 vim.opt.relativenumber = true -- for 5j, 12k navigation
 vim.opt.signcolumn = 'yes' -- prevents text shifting
-vim.opt.wrap = false
+vim.opt.wrap = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = false -- Go uses real tabs
@@ -27,8 +27,6 @@ vim.g.have_nerd_font = true
 -- [[ Setting options ]]
 -- See `:help vim.o`
 --  For more options, you can see `:help option-list`
--- vim.o.number = true
--- vim.o.relativenumber = true
 vim.o.mouse = 'a'
 vim.o.showmode = false
 --  See `:help 'clipboard'`
@@ -58,8 +56,16 @@ vim.o.splitbelow = true
 --  It is very similar to `vim.o` but offers an interface for conveniently interacting with tables.
 --   See `:help lua-options`
 --   and `:help lua-options-guide`
-vim.o.list = true
+-- vim.o.list = true
 -- vim.opt.listchars = { tab = '  ', trail = '·', nbsp = '␣' } -- Changed '» ' to '  ' (two spaces)
+vim.opt.list = true
+vim.opt.listchars = {
+  tab = '  ', -- Two spaces: the first is used once, the second repeats
+  trail = '·',
+  nbsp = '␣',
+}
+-- Maak ongebruikte variabelen iets lichter grijs zodat ze leesbaar blijven onder de cursor
+vim.api.nvim_set_hl(0, 'DiagnosticUnnecessary', { fg = '#777777', italic = true })
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
@@ -83,8 +89,31 @@ vim.o.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Toggle the quickfix window also when being outside the quicklist window
+vim.keymap.set('n', '<leader>q', function()
+  -- Check if any window in the current tab is a location list
+  local loclist_win = vim.fn.getloclist(0, { winid = 0 }).winid
+  local is_open = loclist_win ~= 0
+
+  if is_open then
+    vim.cmd 'lclose'
+  else
+    -- Open diagnostics in the location list
+    -- { open = true } ensures it opens immediately
+    vim.diagnostic.setloclist { open = true }
+  end
+end, { desc = 'Toggle diagnostic [Q]uickfix list' })
+
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set(
+  'n',
+  '<leader>e',
+  function() vim.diagnostic.open_float(nil, { focus = false, border = 'rounded', source = true }) end,
+  { desc = 'Show diagnostic float' }
+)
+
+-- Open diagnostics window for detail
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic float' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -95,28 +124,20 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 ---
 -- Toggle last buffer
 vim.keymap.set('n', 'gb', '<C-^>', { desc = 'Toggle last buffer' })
---
--- List all buffers (quick look without telescope)
-vim.keymap.set('n', '<leader>bl', ':ls<CR>', { desc = 'List buffers' })
 
 -- Go to next/previous buffer
 vim.keymap.set('n', '<leader>n', ':bnext<CR>', { desc = 'Next buffer' })
 vim.keymap.set('n', '<leader>p', ':bprevious<CR>', { desc = 'Prev buffer' })
-
--- List all buffers and swith to buffer
-vim.keymap.set('n', '<leader>b', ':ls<CR>:buffer<Space>', {
-  desc = 'List buffers and switch (type number)',
-})
 
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
@@ -140,6 +161,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function() vim.hl.on_yank() end,
+})
+
+-- Get diagnostic in quicklist
+vim.api.nvim_create_autocmd('DiagnosticChanged', {
+  callback = function() vim.diagnostic.setloclist { open = false } end,
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -187,18 +213,18 @@ require('lazy').setup({
   -- options to `gitsigns.nvim`.
   --
   -- See `:help gitsigns` to understand what the configuration keys do
-  { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
-  },
+  -- { -- Adds git related signs to the gutter, as well as utilities for managing changes
+  --   'lewis6991/gitsigns.nvim',
+  --   opts = {
+  --     signs = {
+  --       add = { text = '+' },
+  --       change = { text = '~' },
+  --       delete = { text = '_' },
+  --       topdelete = { text = '‾' },
+  --       changedelete = { text = '~' },
+  --     },
+  --   },
+  -- },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -220,7 +246,7 @@ require('lazy').setup({
     opts = {
       -- delay between pressing a key and opening which-key (milliseconds)
       -- this setting is independent of vim.o.timeoutlen
-      delay = 0,
+      delay = 099999,
       icons = {
         -- set icon mappings to true if you have a Nerd Font
         mappings = vim.g.have_nerd_font,
@@ -532,11 +558,12 @@ require('lazy').setup({
       })
 
       -- Diagnostic Config
-      -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
         severity_sort = true,
-        float = { border = 'rounded', source = 'if_many' },
-        underline = { severity = vim.diagnostic.severity.ERROR },
+        virtual_text = false, -- turn off the non-wrapping inline text
+        virtual_lines = {
+          current_line = false, -- only show for the line under cursor
+        },
         signs = vim.g.have_nerd_font and {
           text = {
             [vim.diagnostic.severity.ERROR] = '󰅚 ',
@@ -545,18 +572,10 @@ require('lazy').setup({
             [vim.diagnostic.severity.HINT] = '󰌶 ',
           },
         } or {},
-        virtual_text = {
-          source = 'if_many',
-          spacing = 2,
-          format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
-          end,
+        update_in_insert = false,
+        float = {
+          border = 'rounded',
+          source = true,
         },
       }
 
@@ -706,6 +725,16 @@ require('lazy').setup({
     },
   },
 
+  {
+    'olexsmir/gopher.nvim',
+    ft = 'go',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    config = true,
+  },
+
   { -- Autocompletion
     'saghen/blink.cmp',
     version = '1.*',
@@ -736,6 +765,7 @@ require('lazy').setup({
       },
       'folke/lazydev.nvim',
     },
+
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {
@@ -867,7 +897,7 @@ require('lazy').setup({
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      -- require('mini.ai').setup { n_lines = 500 }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
@@ -875,7 +905,7 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
-
+      -- require('mini.indentscope').setup()
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
@@ -950,16 +980,15 @@ require('lazy').setup({
     end,
   },
 
-  -- Go debugging
-
   {
-    'olexsmir/gopher.nvim',
-    ft = 'go',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-treesitter/nvim-treesitter',
+    'chentoast/marks.nvim',
+    event = 'VeryLazy',
+    opts = {
+      default_mappings = true, -- keeps the standard m{a-z} etc.
+      signs = true, -- shows marks in the gutter
+      refresh_interval = 150,
+      sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
     },
-    config = true,
   },
 
   -- Go debugging
