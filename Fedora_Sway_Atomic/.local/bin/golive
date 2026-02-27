@@ -30,6 +30,12 @@ build_templ() {
   fi
 }
 
+#build_tailwind() {
+# log "*** Building Tailwind CSS ***"
+#  npx @tailwindcss/cli -i ./ui/static/css/input.css -o ./ui/static/css/output.css   # or without --watch for one-off
+#  log ">>> Tailwind built"
+#}
+
 build_app() {
   main_path=$(fd main.go --type f --exclude vendor --exclude .git | head -n1)
   if [ -z "$main_path" ]; then

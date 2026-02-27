@@ -168,6 +168,27 @@ vim.api.nvim_create_autocmd('DiagnosticChanged', {
   callback = function() vim.diagnostic.setloclist { open = false } end,
 })
 
+-- Automatisch imports regelen voor Go bij het opslaan van een bestand
+-- vim.api.nvim_create_autocmd('BufWritePre', {
+--   pattern = '*.go',
+--   callback = function()
+--     local params = vim.lsp.util.make_range_params()
+--     params.context = { only = { 'source.organizeImports' } }
+--     -- buf_request_sync voert de actie uit en wacht maximaal 1000ms
+--     local result = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', params, 1000)
+--     for cid, res in pairs(result or {}) do
+--       for _, r in pairs(res.result or {}) do
+--         if r.edit then
+--           local enc = (vim.lsp.get_client_by_id(cid) or {}).offset_encoding or 'utf-16'
+--           vim.lsp.util.apply_workspace_edit(r.edit, enc)
+--         end
+--       end
+--     end
+--     -- Formatteer de code ook direct (optioneel, maar aanbevolen voor Go)
+--     vim.lsp.buf.format { async = false }
+--   end,
+-- })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -367,6 +388,8 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+      -- Alleen diagnostiek voor het huidige bestand
+      vim.keymap.set('n', '<leader>dd', function() require('telescope.builtin').diagnostics { bufnr = 0 } end, { desc = '[B]uffer [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
@@ -561,10 +584,11 @@ require('lazy').setup({
       vim.diagnostic.config {
         severity_sort = true,
         virtual_text = false, -- turn off the non-wrapping inline text
-        virtual_lines = {
-          current_line = false, -- only show for the line under cursor
-          severity = { min = vim.diagnostic.severity.ERROR },
-        },
+        virtual_lines = false,
+        -- {
+        --   current_line = false, -- only show for the line under cursor
+        --   severity = { min = vim.diagnostic.severity.ERROR },
+        -- },
         signs = vim.g.have_nerd_font and {
           text = {
             [vim.diagnostic.severity.ERROR] = '󰅚 ',
@@ -600,8 +624,10 @@ require('lazy').setup({
         gopls = {
           settings = {
             gopls = {
-              -- completeUnimported = true,
-              -- usePlaceholders = true,
+              -- Als je dit aanzet, stelt Neovim tijdens het typen al functies voor uit pakketten die je nog niet hebt geïmporteerd.
+              completeUnimported = true,
+              -- Hiermee vult Neovim direct de parameternamen in als je een functie kiest (bijv. func(w http.ResponseWriter, r *http.Request))
+              usePlaceholders = true,
               analyses = {
                 unusedparams = true,
                 shadow = true,
@@ -907,43 +933,126 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
       -- require('mini.indentscope').setup()
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup {
-        use_icons = vim.g.have_nerd_font,
-        -- content = {
-        --   active = function()
-        --     local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
-        --     local git = MiniStatusline.section_git { trunc_width = 40 }
-        --     local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 } -- ← this one!
-        --     local filename = MiniStatusline.section_filename { trunc_width = 140 }
-        --     local fileinfo = MiniStatusline.section_fileinfo { trunc_width = 120 }
-        --     local location = MiniStatusline.section_location { trunc_width = 75 }
-        --
-        --     return MiniStatusline.combine_groups {
-        --       { hl = mode_hl, strings = { mode } },
-        --       { hl = 'MiniStatuslineDevinfo', strings = { git, diagnostics } },
-        --       '%<', -- Mark where text starts to truncate
-        --       { hl = 'MiniStatuslineFilename', strings = { filename } },
-        --       '%=', -- End left alignment
-        --       { hl = 'MiniStatuslineFileinfo', strings = { fileinfo } },
-        --       { hl = mode_hl, strings = { location } },
-        --     }
-        --   end,
-        --   -- inactive = ..., -- keep as-is or similar
-        -- },
-      }
+    end,
+  },
 
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function() return '%2l:%-2v' end
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
+  {
+    'hiphish/rainbow-delimiters.nvim',
+    name = 'rainbow-delimiters',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      local rainbow_delimiters = require 'rainbow-delimiters'
+
+      require('rainbow-delimiters.setup').setup {
+        strategy = {
+          [''] = rainbow_delimiters.strategy['global'],
+        },
+        query = {
+          [''] = 'rainbow-delimiters',
+          lua = 'rainbow-blocks',
+        },
+        highlight = {
+          'RainbowDelimiterOrange',
+          'RainbowDelimiterGreen',
+          'RainbowDelimiterYellow',
+          'RainbowDelimiterViolet',
+          'RainbowDelimiterBlue',
+          'RainbowDelimiterCyan',
+          'RainbowDelimiterRed',
+        },
+      }
+    end,
+  },
+
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    opts = {
+      -- We zetten de standaard stippellijntjes (indent) UIT voor maximale rust
+      indent = {
+        char = '', -- Geen karakter voor de standaard lijnen
+      },
+      -- We zetten alleen de SCOPE (waar je bent) AAN
+      scope = {
+        enabled = true,
+        show_start = true, -- Toont een streepje bij de beginnende {
+        show_end = true, -- Toont een streepje bij de sluitende }
+        char = '│', -- Een heel dun verticaal lijntje
+        highlight = { 'LineNr' },
+        -- highlight = { 'Function', 'Label' }, -- Gebruik een kleur uit je thema (bijv. paars/blauw van Tokyonight)
+      },
+    },
+  },
+
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {
+        options = {
+          icons_enabled = true,
+          theme = 'auto',
+          component_separators = { left = '', right = '' },
+          section_separators = { left = '', right = '' },
+          disabled_filetypes = {
+            statusline = {},
+            winbar = {},
+          },
+          ignore_focus = {},
+          always_divide_middle = true,
+          always_show_tabline = true,
+          globalstatus = true,
+          refresh = {
+            statusline = 1000,
+            tabline = 1000,
+            winbar = 1000,
+            refresh_time = 16, -- ~60fps
+            events = {
+              'WinEnter',
+              'BufEnter',
+              'BufWritePost',
+              'SessionLoadPost',
+              'FileChangedShellPost',
+              'VimResized',
+              'Filetype',
+              'CursorMoved',
+              'CursorMovedI',
+              'ModeChanged',
+            },
+          },
+        },
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_c = { 'filename' },
+
+          lualine_d = {
+            {
+              'diagnostics',
+              sources = { 'nvim_diagnostic' },
+              symbols = { error = '   ', warn = '   ', info = '   ', hint = '   ' },
+              colored = true, -- DIT zorgt voor de kleuren die je zocht!
+              update_in_insert = false,
+              always_visible = true,
+            },
+          },
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' },
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = { 'filename' },
+          lualine_x = { 'location' },
+          lualine_y = {},
+          lualine_z = {},
+        },
+        tabline = {},
+        winbar = {},
+        inactive_winbar = {},
+        extensions = {},
+      }
     end,
   },
 
@@ -990,6 +1099,148 @@ require('lazy').setup({
       refresh_interval = 150,
       sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
     },
+  },
+
+  {
+    'rachartier/tiny-inline-diagnostic.nvim',
+    event = 'VeryLazy', -- Laadt de plugin pas als Neovim is opgestart
+    config = function()
+      require('tiny-inline-diagnostic').setup {
+        -- Choose a preset style for diagnostic appearance
+        -- Available: "modern", "classic", "minimal", "powerline", "ghost", "simple", "nonerdfont", "amongus"
+        preset = 'modern',
+
+        -- Make diagnostic background transparent
+        transparent_bg = false,
+
+        -- Make cursorline background transparent for diagnostics
+        transparent_cursorline = true,
+
+        -- Customize highlight groups for colors
+        -- Use Neovim highlight group names or hex colors like "#RRGGBB"
+        hi = {
+          error = 'DiagnosticError', -- Highlight for error diagnostics
+          warn = 'DiagnosticWarn', -- Highlight for warning diagnostics
+          info = 'DiagnosticInfo', -- Highlight for info diagnostics
+          hint = 'DiagnosticHint', -- Highlight for hint diagnostics
+          arrow = 'NonText', -- Highlight for the arrow pointing to diagnostic
+          background = 'CursorLine', -- Background highlight for diagnostics
+          mixing_color = 'Normal', -- Color to blend background with (or "None")
+        },
+
+        -- List of filetypes to disable the plugin for
+        disabled_ft = {},
+        options = {
+          -- Display the source of diagnostics (e.g., "lua_ls", "pyright")
+          show_source = {
+            enabled = false, -- Enable showing source names
+            if_many = false, -- Only show source if multiple sources exist for the same diagnostic
+          },
+
+          -- Display the diagnostic code of diagnostics (e.g., "F401", "no-dupe-args")
+          show_code = true,
+
+          -- Use icons from vim.diagnostic.config instead of preset icons
+          use_icons_from_diagnostic = false,
+
+          -- Color the arrow to match the severity of the first diagnostic
+          set_arrow_to_diag_color = true,
+
+          -- Throttle update frequency in milliseconds to improve performance
+          -- Higher values reduce CPU usage but may feel less responsive
+          -- Set to 0 for immediate updates (may cause lag on slow systems)
+          throttle = 20,
+
+          -- Minimum number of characters before wrapping long messages
+          softwrap = 30,
+
+          -- Control how diagnostic messages are displayed
+          -- NOTE: When using display_count = true, you need to enable multiline diagnostics with multilines.enabled = true
+          --       If you want them to always be displayed, you can also set multilines.always_show = true.
+          add_messages = {
+            messages = true, -- Show full diagnostic messages
+            display_count = false, -- Show diagnostic count instead of messages when cursor not on line
+            use_max_severity = false, -- When counting, only show the most severe diagnostic
+            show_multiple_glyphs = true, -- Show multiple icons for multiple diagnostics of same severity
+          },
+
+          -- Settings for multiline diagnostics
+          multilines = {
+            enabled = false, -- Enable support for multiline diagnostic messages
+            always_show = false, -- Always show messages on all lines of multiline diagnostics
+            trim_whitespaces = false, -- Remove leading/trailing whitespace from each line
+            tabstop = 4, -- Number of spaces per tab when expanding tabs
+            severity = nil, -- Filter multiline diagnostics by severity (e.g., { vim.diagnostic.severity.ERROR })
+          },
+
+          -- Show all diagnostics on the current cursor line, not just those under the cursor
+          show_all_diags_on_cursorline = false,
+
+          -- Only show diagnostics when the cursor is directly over them, no fallback to line diagnostics
+          show_diags_only_under_cursor = false,
+
+          -- Display related diagnostics from LSP relatedInformation
+          show_related = {
+            enabled = true, -- Enable displaying related diagnostics
+            max_count = 3, -- Maximum number of related diagnostics to show per diagnostic
+          },
+
+          -- Enable diagnostics display in insert mode
+          -- May cause visual artifacts; consider setting throttle to 0 if enabled
+          enable_on_insert = false,
+
+          -- Enable diagnostics display in select mode (e.g., during auto-completion)
+          enable_on_select = false,
+
+          -- Handle messages that exceed the window width
+          overflow = {
+            mode = 'wrap', -- "wrap": split into lines, "none": no truncation, "oneline": keep single line
+            padding = 0, -- Extra characters to trigger wrapping earlier
+          },
+
+          -- Break long messages into separate lines
+          break_line = {
+            enabled = false, -- Enable automatic line breaking
+            after = 30, -- Number of characters before inserting a line break
+          },
+
+          -- Custom function to format diagnostic messages
+          -- Receives diagnostic object, returns formatted string
+          -- Example: function(diag) return diag.message .. " [" .. diag.source .. "]" end
+          format = nil,
+
+          -- Virtual text display priority
+          -- Higher values appear above other plugins (e.g., GitBlame)
+          virt_texts = {
+            priority = 2048,
+          },
+
+          -- Filter diagnostics by severity levels
+          -- Remove severities you don't want to display
+          severity = {
+            vim.diagnostic.severity.ERROR,
+            vim.diagnostic.severity.WARN,
+            vim.diagnostic.severity.INFO,
+            vim.diagnostic.severity.HINT,
+          },
+
+          -- Events that trigger attaching diagnostics to buffers
+          -- Default is {"LspAttach"}; change only if plugin doesn't work with your LSP setup
+          overwrite_events = nil,
+
+          -- Automatically disable diagnostics when opening diagnostic float windows
+          override_open_float = false,
+
+          -- Experimental options, subject to misbehave in future NeoVim releases
+          experimental = {
+            -- Make diagnostics not mirror across windows containing the same buffer
+            -- See: https://github.com/rachartier/tiny-inline-diagnostic.nvim/issues/127
+            use_window_local_extmarks = false,
+          },
+        },
+      }
+      vim.diagnostic.config { virtual_text = false } -- Disable Neovim's default virtual text diagnostics
+    end,
   },
 
   -- Go debugging
