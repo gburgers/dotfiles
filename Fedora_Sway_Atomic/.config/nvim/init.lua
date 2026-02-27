@@ -169,25 +169,25 @@ vim.api.nvim_create_autocmd('DiagnosticChanged', {
 })
 
 -- Automatisch imports regelen voor Go bij het opslaan van een bestand
--- vim.api.nvim_create_autocmd('BufWritePre', {
---   pattern = '*.go',
---   callback = function()
---     local params = vim.lsp.util.make_range_params()
---     params.context = { only = { 'source.organizeImports' } }
---     -- buf_request_sync voert de actie uit en wacht maximaal 1000ms
---     local result = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', params, 1000)
---     for cid, res in pairs(result or {}) do
---       for _, r in pairs(res.result or {}) do
---         if r.edit then
---           local enc = (vim.lsp.get_client_by_id(cid) or {}).offset_encoding or 'utf-16'
---           vim.lsp.util.apply_workspace_edit(r.edit, enc)
---         end
---       end
---     end
---     -- Formatteer de code ook direct (optioneel, maar aanbevolen voor Go)
---     vim.lsp.buf.format { async = false }
---   end,
--- })
+vim.api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*.go',
+  callback = function()
+    local params = vim.lsp.util.make_range_params()
+    params.context = { only = { 'source.organizeImports' } }
+    -- buf_request_sync voert de actie uit en wacht maximaal 1000ms
+    local result = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', params, 1000)
+    for cid, res in pairs(result or {}) do
+      for _, r in pairs(res.result or {}) do
+        if r.edit then
+          local enc = (vim.lsp.get_client_by_id(cid) or {}).offset_encoding or 'utf-16'
+          vim.lsp.util.apply_workspace_edit(r.edit, enc)
+        end
+      end
+    end
+    -- Formatteer de code ook direct (optioneel, maar aanbevolen voor Go)
+    -- vim.lsp.buf.format({ async = false })
+  end,
+})
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -1024,8 +1024,21 @@ require('lazy').setup({
         sections = {
           lualine_a = { 'mode' },
           lualine_b = { 'branch', 'diff', 'diagnostics' },
-          lualine_c = { 'filename' },
-
+          -- lualine_c = { 'filename', path = 2 },
+          lualine_c = {
+            {
+              'filename',
+              path = 3, -- 2 = full absolute path
+              -- optional useful settings:
+              file_status = true, -- shows readonly / modified symbols
+              shorting_target = 40, -- default, shortens path when very long
+              symbols = {
+                modified = ' ●', -- or whatever icon you like
+                readonly = ' ',
+                unnamed = '[No Name]',
+              },
+            },
+          },
           lualine_d = {
             {
               'diagnostics',
@@ -1291,27 +1304,6 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
-
-  -- Auto organize imports on save for Go files
-  -- vim.api.nvim_create_autocmd('BufWritePre', {
-  --   pattern = '*.go',
-  --   callback = function()
-  --     local params = vim.lsp.util.make_range_params()
-  --     params.context = { only = { 'source.organizeImports' } }
-  --
-  --     -- Synchronous request to avoid race conditions with formatting
-  --     local result = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', params, 1000)
-  --     if result and result[1] then
-  --       local edit = result[1].result[1].edit
-  --       if edit then
-  --         vim.lsp.util.apply_workspace_edit(edit, 'utf-8')
-  --       end
-  --     end
-  --
-  --     -- Optional: let conform.nvim handle formatting (gofumpt) afterward
-  --     -- This works because conform.nvim runs on BufWritePre too
-  --   end,
-  -- }),
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
