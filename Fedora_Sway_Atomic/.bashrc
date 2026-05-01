@@ -1,18 +1,20 @@
 # .bashrc
 
+set -o vi
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
-# User specific environment
+# User bin location
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
   PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
 
-# Go (manual installation)
-if ! [[ "$PATH" =~ "/usr/local/go/bin:" ]]; then
-  PATH="/usr/local/go/bin:$PATH"
+# # $GOPATH/bin voor Go tools: templ, gopls etc.
+if ! [[ "$PATH" =~ "$HOME/go/bin:" ]]; then
+  PATH="$HOME/go/bin:$PATH"
 fi
 
 export PATH
@@ -31,7 +33,10 @@ shopt -s histappend
 shopt -s cmdhist
 
 # Enable history expansion with space
-bind Space:magic-space
+# bind Space:magic-space
+if [[ $- == *i* ]]; then
+    bind 'Space:magic-space'
+fi
 
 # Uncomment the following line if you don't like systemctl's auto-paging feature:
 # export SYSTEMD_PAGER=
@@ -49,7 +54,9 @@ unset rc
 if [ -f /run/.containerenv ]; then
   export STARSHIP_CONFIG=~/.config/starship_container.toml
   eval "$(starship init bash)"
-  eval "$(zoxide init bash)"
+  if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init bash)"
+fi
 else
   # Use default starship config for host
   eval "$(starship init bash)"
@@ -65,6 +72,10 @@ export GHREPOS="$REPOS/github.com/$GITUSER"
 export DOTFILES="$REPOS/dotfiles"
 export SCRIPTS="$DOTFILES/scripts"
 export EDITOR="nvim"
+# Go compiler (manual installation)
+export PATH="/usr/local/go/bin:$PATH"
+export PATH=$PATH:$HOME/data/ai/bin
+
 
 # Env variable for Go development Slog LOG_LEVEL: INFO / DEBUG
 export LOG_LEVEL=DEBUG
@@ -75,10 +86,17 @@ export LOG_LEVEL=DEBUG
 
 alias grp='cd $GHREPOS'
 
-alias godev='toolbox enter go-dev'
+alias godev='toolbox enter godev_1_26_1'
 alias cli='toolbox enter cli-tools'
 alias ai='toolbox enter ai-tools'
+alias oc='toolbox run -c ai-tools opencode'
+alias cl='toolbox run -c ai-tools claude'
 alias lg='toolbox run -c cli-tools lazygit'
+
+# AI Agents in ~/data/ai/agents/coding/coding_mentor.json
+# alias ai-code='toolbox run -c ai-tools opencode --agent "/home/gerben/data/ai/agents/coding/coding_agent.json" .'
+alias ai-code='toolbox run -c ai-tools opencode --agent coding_mentor .'
+
 
 # Neovim from toolbox
 # agrplias nvim='toolbox run -c cli-tools nvim'
@@ -141,7 +159,7 @@ alias k3s-update='toolbox enter kubernetes && sudo dnf update -y kubectl k9s && 
 alias krestart='kubectl rollout restart deployment ls-app'
 
 # Current project home dir, working on
-alias qq='cd ~/dev/Repos/github.com/gburgers/liteshop-web'
+alias qq='cd /home/gerben/dev/Repos/github.com/gburgers/liteshop-web'
 
 v() {
   # If we're already inside toolbox, just run nvim directly
